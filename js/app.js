@@ -31,6 +31,7 @@ const statusOf = (s) => (s === "REAL" ? "UNVERIFIED" : s === "PARTIAL" ? "UNVERI
 // UNVERIFIED = computed from NASA data by our services (real mode rejects MOCK), shown as "NASA data".
 const badge = (status) => `<span class="badge ${status === "UNVERIFIED" ? "VERIFIED" : esc(status)}" title="${status === "VERIFIED" ? "Source reports verified data" : status === "MOCK" ? "Synthetic fixture values, not measurements" : "Computed from NASA LRO LOLA and JPL Horizons data, cross-checked against JPL Horizons and the LOLA file"}">${{ MOCK: "Mock data", UNVERIFIED: "NASA data", VERIFIED: "Verified by source" }[status] || esc(status)}</span>`;
 const NASA_NOTE = "Computed from NASA data (LRO LOLA terrain, JPL Horizons ephemeris), cross-checked against JPL Horizons (0.00003 deg) and the LOLA file (0 m). Planning estimate, not a flight decision.";
+const friendlyText = (t) => String(t ?? "").replace(/^UNVERIFIED evidence;/, "NASA-data evidence;");
 const friendlyWarning = (w) => (/^UNVERIFIED supplier data accepted/.test(w) ? NASA_NOTE : w);
 const isLola = (t) => t?.origin === "nasa-lola";
 const tBadge = (t) => (isLola(t) ? `<span class="badge NASA" title="Measured by the LRO Lunar Orbiter Laser Altimeter; gridded NASA PDS product. Not validated by this team for flight operations.">NASA LOLA data</span>` : badge(statusOf(t?.status)));
@@ -335,7 +336,7 @@ function renderDossier() {
           <div class="contrib">${parts.map(([k, x]) => `<span style="width:${x * 100}%;background:${PRIO[k][1]}" title="${PRIO[k][0]} ${x.toFixed(3)}"></span>`).join("")}</div>
           <div class="contrib-keys">${parts.map(([k, x]) => `<span><i style="background:${PRIO[k][1]}"></i>${PRIO[k][0]} ${x.toFixed(3)}</span>`).join("")}</div>
           <p class="check">Breakdown recomputed in the browser from the documented scoring formula: ${recomputed.toFixed(4)}${Math.abs(recomputed - rec.score) < 1e-4 ? ", matching the backend score" : `, backend reports ${rec.score.toFixed(4)}`}.</p>
-          <p style="margin-top:10px"><b>Planner explanation:</b> ${esc(rec.explanation)}</p>
+          <p style="margin-top:10px"><b>Planner explanation:</b> ${esc(friendlyText(rec.explanation))}</p>
           ${P.ai_summary ? `<p class="ai-sum"><b>AI summary</b> <span class="ai-tag" title="Written by Gemini from the agents' numbers only. Every number was checked against the evidence; any unmatched number would have rejected the text.">Gemini · numbers checked</span><br>${esc(P.ai_summary)}</p>` : ""}
           ${sim ? `<p style="margin-top:8px"><b>Remaining risks:</b> ${sim.hazards.filter((h) => h.severity !== "info").map((h) => esc(h.title)).join("; ") || "none flagged by the safety simulation under current assumptions"}.</p>` : ""}</div>
       </div>
@@ -483,7 +484,7 @@ function selectSite(id, date, fly = false) {
       ${o.route ? `<dt>Planner route</dt><dd>${fmtM(o.route.distance_m)}, ${o.route.accessible ? "accessible" : "blocked"}</dd>` : ""}
       <dt>Outcome</dt><dd>${o.feasible ? `Feasible, score ${o.score.toFixed(3)}${rank >= 0 ? `, rank ${rank + 1}` : ""}` : `<span style="color:var(--halt)">${esc(o.violations.join(", "))}</span>`}</dd>
       <dt>Measured by</dt><dd>${esc(v.provenance.source)} ${badge(v.provenance.status)}</dd>${v.provenance.uncertainty ? `<dt>Uncertainty</dt><dd>${esc(v.provenance.uncertainty)}</dd>` : ""}</dl>
-    <p style="font-size:13px;color:var(--dust)">${esc(o.explanation)}</p>
+    <p style="font-size:13px;color:var(--dust)">${esc(friendlyText(o.explanation))}</p>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${inCov && view ? `<button class="btn" id="walk-here">LUNA WALK here</button>` : ""}${o.feasible && inCov ? `<button class="btn" id="sim-here">Simulate safety from here</button>` : ""}</div>
     ${!inCov ? `<p class="note" style="margin-top:10px">This site is outside the terrain grid (the dashed square), so 3D ground view, routes and the safety simulation are not available for it.</p>` : ""}`;
   $$(".datepick button").forEach((b) => b.addEventListener("click", () => { selectSite(id, b.dataset.d); S.sim = null; }));

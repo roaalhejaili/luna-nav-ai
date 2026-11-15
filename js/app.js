@@ -1,5 +1,5 @@
-import { CONFIG } from "./config.js";
-import { planner, moonNav, ApiError, recordedRuns, REPO_URL } from "./api.js";
+import { CONFIG } from "./config.js?v=7";
+import { planner, moonNav, ApiError, recordedRuns, REPO_URL } from "./api.js?v=7";
 import { mountMoon } from "./moon.js";
 import { MoonExplorer } from "./explorer.js";
 import { TerrainView } from "./gl3d.js";
@@ -31,7 +31,8 @@ const statusOf = (s) => (s === "REAL" ? "UNVERIFIED" : s === "PARTIAL" ? "UNVERI
 // UNVERIFIED = computed from NASA data by our services (real mode rejects MOCK), shown as "NASA data".
 const badge = (status) => `<span class="badge ${status === "UNVERIFIED" ? "VERIFIED" : esc(status)}" title="${status === "VERIFIED" ? "Source reports verified data" : status === "MOCK" ? "Synthetic fixture values, not measurements" : "Computed from NASA LRO LOLA and JPL Horizons data, cross-checked against JPL Horizons and the LOLA file"}">${{ MOCK: "Mock data", UNVERIFIED: "NASA data", VERIFIED: "Verified by source" }[status] || esc(status)}</span>`;
 const NASA_NOTE = "Computed from NASA data (LRO LOLA terrain, JPL Horizons ephemeris), cross-checked against JPL Horizons (0.00003 deg) and the LOLA file (0 m). Planning estimate, not a flight decision.";
-const friendlyText = (t) => String(t ?? "").replace(/^UNVERIFIED evidence;/, "NASA-data evidence;");
+const friendlyText = (t) => String(t ?? "").replace(/^UNVERIFIED evidence;/, "NASA-data evidence;")
+  .replace("Supplier status retained in source; REAL requires independent verification", "Computed from NASA data; cross-checked against JPL Horizons and the LOLA file");
 const friendlyWarning = (w) => (/^UNVERIFIED supplier data accepted/.test(w) ? NASA_NOTE : w);
 const isLola = (t) => t?.origin === "nasa-lola";
 const tBadge = (t) => (isLola(t) ? `<span class="badge NASA" title="Measured by the LRO Lunar Orbiter Laser Altimeter; gridded NASA PDS product. Not validated by this team for flight operations.">NASA LOLA data</span>` : badge(statusOf(t?.status)));
@@ -189,12 +190,24 @@ const NODES = [
 function renderPipeline(states = {}, evidence = {}) {
   $("#pipeline").innerHTML = NODES.map((n, i) => {
     const s = states[n.id] || "idle";
-    const pill = { idle: "Standing by", waiting: "Awaiting response", done: "Ran, confirmed by response", skipped: "Skipped by graph", halted: "Not confirmed" }[s];
+    const pill = { idle: "Standing by", waiting: "Queued", running: "Working…", done: "Done, confirmed by response", skipped: "Skipped by graph", halted: "Not confirmed" }[s];
     const ev = evidence[n.id];
     return `<li class="agent${n.branch ? " branch" : ""}" data-s="${s}"><div class="node">${String(i + 1).padStart(2, "0")}</div>
       <div class="card"><div class="row1"><h3>${n.name}</h3><span class="pill">${pill}</span></div><p class="role">${n.role}</p>
       ${ev ? `<div class="evidence">${ev.map(([k, v]) => `<div><span>${esc(k)}</span><span>${v}</span></div>`).join("")}</div>` : ""}</div></li>`;
   }).join("");
+}
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+/** Walk the seven agents one at a time: each shows "Working…", then "Done" with its evidence from the response. */
+async function animatePipeline(resp) {
+  const all = evidenceFrom(resp), st = Object.fromEntries(NODES.map((n) => [n.id, "waiting"])), shown = {};
+  for (const n of NODES) {
+    if (n.id === "navigation_analysis" && !resp.requirements.require_navigation) { st[n.id] = "skipped"; shown[n.id] = all[n.id]; continue; }
+    st[n.id] = "running"; renderPipeline(st, shown);
+    document.querySelector(`#pipeline li[data-s="running"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    await wait(CONFIG.recorded ? 900 : 350);
+    st[n.id] = "done"; shown[n.id] = all[n.id]; renderPipeline(st, shown);
+  }
 }
 function evidenceFrom(resp) {
   const req = resp.requirements, c = resp.candidates, m = resp.metrics || {};
@@ -232,8 +245,7 @@ async function launch() {
     const resp = replan ? await planner.replan(S.plan, req) : await planner.plan(req);
     clearInterval(timer);
     reqStatus(CONFIG.recorded ? "Recorded NASA-data run" : "Response received", CONFIG.recorded ? `Replayed from the live backend on NASA data (LOLA + JPL Horizons), recorded ${esc(recordedAt)}. Backend runtime then: ${resp.metrics?.runtime_ms ?? "?"} ms, mission ${esc(resp.mission_id.slice(0, 8))}.` : `HTTP 200 in ${((performance.now() - t0) / 1000).toFixed(2)} s. Backend runtime ${resp.metrics?.runtime_ms ?? "?"} ms, mission ${esc(resp.mission_id.slice(0, 8))}${replan ? " (same ID, replanned)" : ""}`, false);
-    const states = Object.fromEntries(NODES.map((n) => [n.id, "done"])); if (!resp.requirements.require_navigation) states.navigation_analysis = "skipped";
-    renderPipeline(states, evidenceFrom(resp));
+    await animatePipeline(resp);
     const c = resp.candidates, nSites = new Set(c.map((o) => o.site.site_id)).size, expected = 1 + c.length + (resp.requirements.require_navigation ? c.length : 0), tc = resp.metrics?.tool_calls;
     $("#cc-foot").innerHTML = `<p>Tool calls reported by the backend: <b>${tc}</b>${tc === expected ? `, matching 1 site query, ${c.length} visibility analyses${resp.requirements.require_navigation ? ` and ${c.length} route queries` : ""}` : tc < expected ? `. Fewer than ${expected} because verified measurements were reused` : ""}. ${nSites} sites over ${resp.requirements.dates_utc.length} days.</p>
       <button class="btn primary" id="to-map">Explore candidate sites in 3D</button><button class="btn" id="to-dossier">${resp.recommendation ? "Open landing site" : "See why nothing qualified"}</button>`;
@@ -483,7 +495,7 @@ function selectSite(id, date, fly = false) {
     <dl class="kv"><dt>Sunlight</dt><dd style="color:var(--sun)">${h1(v.sunlight_hours)}</dd><dt>Earth in view</dt><dd style="color:var(--link)">${h1(v.earth_visible_hours)}</dd><dt>Longest blackout</dt><dd>${h1(v.max_blackout_hours)}</dd>
       ${o.route ? `<dt>Planner route</dt><dd>${fmtM(o.route.distance_m)}, ${o.route.accessible ? "accessible" : "blocked"}</dd>` : ""}
       <dt>Outcome</dt><dd>${o.feasible ? `Feasible, score ${o.score.toFixed(3)}${rank >= 0 ? `, rank ${rank + 1}` : ""}` : `<span style="color:var(--halt)">${esc(o.violations.join(", "))}</span>`}</dd>
-      <dt>Measured by</dt><dd>${esc(v.provenance.source)} ${badge(v.provenance.status)}</dd>${v.provenance.uncertainty ? `<dt>Uncertainty</dt><dd>${esc(v.provenance.uncertainty)}</dd>` : ""}</dl>
+      <dt>Measured by</dt><dd>${esc(v.provenance.source)} ${badge(v.provenance.status)}</dd>${v.provenance.uncertainty ? `<dt>Uncertainty</dt><dd>${esc(friendlyText(v.provenance.uncertainty))}</dd>` : ""}</dl>
     <p style="font-size:13px;color:var(--dust)">${esc(friendlyText(o.explanation))}</p>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${inCov && view ? `<button class="btn" id="walk-here">LUNA WALK here</button>` : ""}${o.feasible && inCov ? `<button class="btn" id="sim-here">Simulate safety from here</button>` : ""}</div>
     ${!inCov ? `<p class="note" style="margin-top:10px">This site is outside the terrain grid (the dashed square), so 3D ground view, routes and the safety simulation are not available for it.</p>` : ""}`;

@@ -1,4 +1,4 @@
-import { CONFIG } from "./config.js";
+import { CONFIG } from "./config.js?v=7";
 
 /** kind: "network" | "validation" (422) | "upstream" (502) | "http" | "nav" */
 export class ApiError extends Error {

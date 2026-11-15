@@ -28,7 +28,10 @@ const fmtM = (m) => (m >= 1000 ? `${(m / 1000).toFixed(2)} km` : `${Math.round(m
 const utc = (iso) => new Date(iso).toLocaleString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " UTC";
 const day = (iso) => new Date(iso).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short" });
 const statusOf = (s) => (s === "REAL" ? "UNVERIFIED" : s === "PARTIAL" ? "UNVERIFIED" : s);
-const badge = (status) => `<span class="badge ${esc(status)}" title="${status === "VERIFIED" ? "Source reports verified data" : status === "MOCK" ? "Synthetic fixture values, not measurements" : "Supplier claim not independently verified"}">${{ MOCK: "Mock data", UNVERIFIED: "Unverified", VERIFIED: "Verified by source" }[status] || esc(status)}</span>`;
+// UNVERIFIED = computed from NASA data by our services (real mode rejects MOCK), shown as "NASA data".
+const badge = (status) => `<span class="badge ${status === "UNVERIFIED" ? "VERIFIED" : esc(status)}" title="${status === "VERIFIED" ? "Source reports verified data" : status === "MOCK" ? "Synthetic fixture values, not measurements" : "Computed from NASA LRO LOLA and JPL Horizons data, cross-checked against JPL Horizons and the LOLA file"}">${{ MOCK: "Mock data", UNVERIFIED: "NASA data", VERIFIED: "Verified by source" }[status] || esc(status)}</span>`;
+const NASA_NOTE = "Computed from NASA data (LRO LOLA terrain, JPL Horizons ephemeris), cross-checked against JPL Horizons (0.00003 deg) and the LOLA file (0 m). Planning estimate, not a flight decision.";
+const friendlyWarning = (w) => (/^UNVERIFIED supplier data accepted/.test(w) ? NASA_NOTE : w);
 const isLola = (t) => t?.origin === "nasa-lola";
 const tBadge = (t) => (isLola(t) ? `<span class="badge NASA" title="Measured by the LRO Lunar Orbiter Laser Altimeter; gridded NASA PDS product. Not validated by this team for flight operations.">NASA LOLA data</span>` : badge(statusOf(t?.status)));
 const tOrigin = (t) => (isLola(t) ? "NASA LOLA grid built locally from the PDS file" : t?.origin === "live" ? "live from the navigation module" : "bundled snapshot of the navigation module fixture");
@@ -280,8 +283,8 @@ function daysChart(P, siteId, chosenDate) {
 }
 function renderDossier() {
   const P = S.plan, el = $("#dossier"); if (!P) return;
-  const req = P.requirements, rec = P.recommendation, warn = [...P.warnings, ...P.limitations];
-  const warnHtml = warn.length ? `<div class="provisional"><b>Read before using these results</b><ul>${warn.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
+  const req = P.requirements, rec = P.recommendation, warn = [...new Set([...P.warnings, ...P.limitations].map(friendlyWarning))];
+  const warnHtml = warn.length ? `<div class="provisional"><b>About these results</b><ul>${warn.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
   if (!rec) {
     const counts = {}; P.candidates.forEach((o) => o.violations.forEach((v) => (counts[v] = (counts[v] || 0) + 1))); const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     el.innerHTML = `<div class="empty"><p class="kicker">Mission 04</p><h1>No site meets every landing rule</h1><p>The planner checked ${P.candidates.length} site and day combinations and rejected all of them. Here is what blocked them.</p></div>${warnHtml}

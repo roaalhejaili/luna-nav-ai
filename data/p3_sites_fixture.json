@@ -1,0 +1,80 @@
+{
+ "snapshot_note": "Static snapshot of Person 3 GET /api/v1/sites (mock fixture sites).",
+ "data_status": "MOCK",
+ "upstream": "mock",
+ "warnings": [],
+ "sites": [
+  {
+   "site_id": "MOCK-SP-01",
+   "name": "Mock Site A (NW plateau)",
+   "location": {
+    "lat_deg": -88.811008,
+    "lon_deg": -56.309932,
+    "elevation_m": 1821.4,
+    "frame": "IAU_MOON_ME"
+   },
+   "terrain": {
+    "elevation_m": 1821.4,
+    "slope_deg": 1.84,
+    "roughness_m": null
+   },
+   "reason": "Low slope on a broad rise (fixture).",
+   "source": "moon_navigation mock fixture",
+   "data_status": "MOCK"
+  },
+  {
+   "site_id": "MOCK-SP-02",
+   "name": "Mock Site B (NE ridge)",
+   "location": {
+    "lat_deg": -88.87685,
+    "lon_deg": 40.236358,
+    "elevation_m": 1584.9,
+    "frame": "IAU_MOON_ME"
+   },
+   "terrain": {
+    "elevation_m": 1584.9,
+    "slope_deg": 1.99,
+    "roughness_m": null
+   },
+   "reason": "Moderate slope, ridge-top (fixture).",
+   "source": "moon_navigation mock fixture",
+   "data_status": "MOCK"
+  },
+  {
+   "site_id": "MOCK-SP-03",
+   "name": "Mock Site C (SE basin)",
+   "location": {
+    "lat_deg": -88.833164,
+    "lon_deg": 132.70939,
+    "elevation_m": 711.8,
+    "frame": "IAU_MOON_ME"
+   },
+   "terrain": {
+    "elevation_m": 711.8,
+    "slope_deg": 1.2,
+    "roughness_m": null
+   },
+   "reason": "Flat basin floor (fixture).",
+   "source": "moon_navigation mock fixture",
+   "data_status": "MOCK"
+  },
+  {
+   "site_id": "MOCK-SP-04",
+   "name": "Mock Site D (SW basin)",
+   "location": {
+    "lat_deg": -88.833164,
+    "lon_deg": -137.29061,
+    "elevation_m": 901.8,
+    "frame": "IAU_MOON_ME"
+   },
+   "terrain": {
+    "elevation_m": 901.8,
+    "slope_deg": 1.03,
+    "roughness_m": null
+   },
+   "reason": "Flat basin floor (fixture).",
+   "source": "moon_navigation mock fixture",
+   "data_status": "MOCK"
+  }
+ ]
+}

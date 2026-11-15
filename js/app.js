@@ -663,7 +663,8 @@ function setService(which, ok, label) { const b = $(`#svc-${which}`); b.classLis
   led(which, ok ? "ok" : "down", label || (ok ? "online" : "offline")); }
 async function checkPlanner() { try { const h = await planner.health(); setService("planner", h.status === "ok", CONFIG.recorded ? "recorded NASA runs" : undefined); return true; } catch { setService("planner", false); return false; } }
 async function checkNav() {
-  try { await moonNav.health(); S.navOnline = true; setService("nav", true); } catch { S.navOnline = false; setService("nav", false, "offline, using snapshot"); }
+  if (CONFIG.recorded) { S.navOnline = false; setService("nav", true, "NASA LOLA terrain (built in)"); }
+  else try { await moonNav.health(); S.navOnline = true; setService("nav", true); } catch { S.navOnline = false; setService("nav", false, "offline, using snapshot"); }
   try {
     const { terrain, sites, sitesMeta } = await loadTerrain(); S.terrain = terrain; S.p3Sites = sites; S.p3Meta = sitesMeta;
     led("terrain", terrain.status === "MOCK" ? "warn" : "ok", isLola(terrain) ? `NASA LOLA, ${terrain.cell} m` : `${terrain.status === "MOCK" ? "mock fixture" : terrain.status}, ${terrain.origin === "live" ? "live" : "bundled snapshot"}`);
@@ -685,7 +686,7 @@ async function checkNav() {
   if (!S.plan) $("#site-panel").innerHTML = `<p class="note">Launch a mission analysis to place the planner's candidate landing sites here. Meanwhile, click anywhere on the terrain to inspect elevation and slope.</p>`;
 }
 $("#svc-planner").onclick = async () => toast((await checkPlanner()) ? `Planner online at ${CONFIG.apiBase}` : `Planner offline at ${CONFIG.apiBase}. Add ?api=URL to point elsewhere.`);
-$("#svc-nav").onclick = async () => { await checkNav(); toast(S.navOnline ? `Navigation online at ${CONFIG.navBase}` : `Navigation offline at ${CONFIG.navBase}. Using the bundled terrain snapshot.`); };
+$("#svc-nav").onclick = async () => { await checkNav(); toast(CONFIG.recorded ? "Public site: routes use the built-in NASA LOLA terrain." : S.navOnline ? `Navigation online at ${CONFIG.navBase}` : `Navigation offline at ${CONFIG.navBase}. Using the bundled terrain snapshot.`); };
 
 let recordedAt = "";
 if (CONFIG.recorded) {

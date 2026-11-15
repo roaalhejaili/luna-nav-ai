@@ -1,0 +1,742 @@
+{
+ "$defs": {
+  "DataSourceInfo": {
+   "additionalProperties": true,
+   "description": "Which NASA data produced the numbers.",
+   "properties": {
+    "engine": {
+     "enum": [
+      "horizons",
+      "spice",
+      "mock"
+     ],
+     "title": "Engine",
+     "type": "string"
+    },
+    "name": {
+     "title": "Name",
+     "type": "string"
+    },
+    "url": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Url"
+    },
+    "ephemeris": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Ephemeris"
+    },
+    "moon_frame": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Moon Frame"
+    },
+    "requests": {
+     "default": 0,
+     "title": "Requests",
+     "type": "integer"
+    },
+    "download_required": {
+     "default": false,
+     "title": "Download Required",
+     "type": "boolean"
+    },
+    "accessed_utc": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Accessed Utc"
+    },
+    "fallback_reason": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Set when engine 'auto' fell back to SPICE.",
+     "title": "Fallback Reason"
+    }
+   },
+   "required": [
+    "engine",
+    "name"
+   ],
+   "title": "DataSourceInfo",
+   "type": "object"
+  },
+  "HorizonInfo": {
+   "properties": {
+    "type": {
+     "enum": [
+      "geometric",
+      "terrain"
+     ],
+     "title": "Type",
+     "type": "string"
+    },
+    "profile_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Profile Id"
+    },
+    "data_status": {
+     "enum": [
+      "REAL",
+      "MOCK"
+     ],
+     "title": "Data Status",
+     "type": "string"
+    },
+    "source": {
+     "title": "Source",
+     "type": "string"
+    },
+    "details": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "For LOLA horizons: site terrain height, observer height, ray range, horizon min/max (no per-azimuth arrays).",
+     "title": "Details"
+    }
+   },
+   "required": [
+    "type",
+    "data_status",
+    "source"
+   ],
+   "title": "HorizonInfo",
+   "type": "object"
+  },
+  "KernelInfo": {
+   "properties": {
+    "name": {
+     "title": "Name",
+     "type": "string"
+    },
+    "role": {
+     "title": "Role",
+     "type": "string"
+    },
+    "url": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Url"
+    }
+   },
+   "required": [
+    "name",
+    "role"
+   ],
+   "title": "KernelInfo",
+   "type": "object"
+  },
+  "Location": {
+   "properties": {
+    "lat_deg": {
+     "title": "Lat Deg",
+     "type": "number"
+    },
+    "lon_deg_east": {
+     "title": "Lon Deg East",
+     "type": "number"
+    },
+    "alt_m": {
+     "title": "Alt M",
+     "type": "number"
+    }
+   },
+   "required": [
+    "lat_deg",
+    "lon_deg_east",
+    "alt_m"
+   ],
+   "title": "Location",
+   "type": "object"
+  },
+  "MissionContext": {
+   "additionalProperties": true,
+   "description": "Optional shared mission metadata (team-wide mission input). Echoed back, not interpreted.",
+   "properties": {
+    "mission_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Mission Id"
+    },
+    "mission_type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Mission Type"
+    },
+    "target": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Target"
+    },
+    "constraints": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "e.g. {'max_dark_hours': 50, 'max_no_contact_hours': 24}. Not evaluated here.",
+     "title": "Constraints"
+    }
+   },
+   "title": "MissionContext",
+   "type": "object"
+  },
+  "Summary": {
+   "properties": {
+    "sun_visible_fraction": {
+     "maximum": 1,
+     "minimum": 0,
+     "title": "Sun Visible Fraction",
+     "type": "number"
+    },
+    "earth_visible_fraction": {
+     "maximum": 1,
+     "minimum": 0,
+     "title": "Earth Visible Fraction",
+     "type": "number"
+    },
+    "sun_visible_fraction_terrain": {
+     "anyOf": [
+      {
+       "maximum": 1,
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Sun Visible Fraction Terrain"
+    },
+    "earth_visible_fraction_terrain": {
+     "anyOf": [
+      {
+       "maximum": 1,
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Earth Visible Fraction Terrain"
+    },
+    "longest_dark_hours": {
+     "minimum": 0,
+     "title": "Longest Dark Hours",
+     "type": "number"
+    },
+    "longest_no_contact_hours": {
+     "minimum": 0,
+     "title": "Longest No Contact Hours",
+     "type": "number"
+    },
+    "longest_dark_hours_terrain": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Longest Dark Hours Terrain"
+    },
+    "longest_no_contact_hours_terrain": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Longest No Contact Hours Terrain"
+    },
+    "sun_elevation_max_deg": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Max Sun elevation over samples.",
+     "title": "Sun Elevation Max Deg"
+    },
+    "sun_elevation_mean_deg": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Mean Sun elevation over samples.",
+     "title": "Sun Elevation Mean Deg"
+    },
+    "hours_until_sunset": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Hours from start_utc to the first sunset (geometric). Null if the Sun is down at start or does not set before end_utc.",
+     "title": "Hours Until Sunset"
+    },
+    "hours_until_earthset": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Hours from start_utc to the first Earthset (geometric); same rules.",
+     "title": "Hours Until Earthset"
+    },
+    "hours_until_sunset_terrain": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Hours Until Sunset Terrain"
+    },
+    "hours_until_earthset_terrain": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Hours Until Earthset Terrain"
+    }
+   },
+   "required": [
+    "sun_visible_fraction",
+    "earth_visible_fraction",
+    "longest_dark_hours",
+    "longest_no_contact_hours"
+   ],
+   "title": "Summary",
+   "type": "object"
+  },
+  "TimeSeriesPoint": {
+   "properties": {
+    "utc": {
+     "title": "Utc",
+     "type": "string"
+    },
+    "sun_az_deg": {
+     "title": "Sun Az Deg",
+     "type": "number"
+    },
+    "sun_el_deg": {
+     "title": "Sun El Deg",
+     "type": "number"
+    },
+    "earth_az_deg": {
+     "title": "Earth Az Deg",
+     "type": "number"
+    },
+    "earth_el_deg": {
+     "title": "Earth El Deg",
+     "type": "number"
+    },
+    "sun_visible": {
+     "description": "Geometric visibility (smooth sphere).",
+     "title": "Sun Visible",
+     "type": "boolean"
+    },
+    "earth_visible": {
+     "description": "Geometric visibility (smooth sphere).",
+     "title": "Earth Visible",
+     "type": "boolean"
+    },
+    "sun_visible_terrain": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Sun Visible Terrain"
+    },
+    "earth_visible_terrain": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Earth Visible Terrain"
+    },
+    "sun_horizon_el_deg": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Terrain horizon at Sun azimuth.",
+     "title": "Sun Horizon El Deg"
+    },
+    "earth_horizon_el_deg": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Terrain horizon at Earth azimuth.",
+     "title": "Earth Horizon El Deg"
+    }
+   },
+   "required": [
+    "utc",
+    "sun_az_deg",
+    "sun_el_deg",
+    "earth_az_deg",
+    "earth_el_deg",
+    "sun_visible",
+    "earth_visible"
+   ],
+   "title": "TimeSeriesPoint",
+   "type": "object"
+  },
+  "VisibilityWindow": {
+   "properties": {
+    "body": {
+     "enum": [
+      "sun",
+      "earth",
+      "dark",
+      "no_contact"
+     ],
+     "title": "Body",
+     "type": "string"
+    },
+    "kind": {
+     "enum": [
+      "geometric",
+      "terrain"
+     ],
+     "title": "Kind",
+     "type": "string"
+    },
+    "start_utc": {
+     "title": "Start Utc",
+     "type": "string"
+    },
+    "end_utc": {
+     "title": "End Utc",
+     "type": "string"
+    },
+    "duration_hours": {
+     "minimum": 0,
+     "title": "Duration Hours",
+     "type": "number"
+    },
+    "starts_at_interval_start": {
+     "default": false,
+     "description": "True if already in progress when the analysis interval began.",
+     "title": "Starts At Interval Start",
+     "type": "boolean"
+    },
+    "ends_at_interval_end": {
+     "default": false,
+     "description": "True if still in progress when the analysis interval ended.",
+     "title": "Ends At Interval End",
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "body",
+    "kind",
+    "start_utc",
+    "end_utc",
+    "duration_hours"
+   ],
+   "title": "VisibilityWindow",
+   "type": "object"
+  }
+ },
+ "description": "Output of analyze_site / POST /api/v1/visibility/analyze.",
+ "properties": {
+  "schema_version": {
+   "default": "1.1",
+   "title": "Schema Version",
+   "type": "string"
+  },
+  "module": {
+   "default": "visibility_planner",
+   "title": "Module",
+   "type": "string"
+  },
+  "site_id": {
+   "title": "Site Id",
+   "type": "string"
+  },
+  "body_frame": {
+   "title": "Body Frame",
+   "type": "string"
+  },
+  "moon_radius_km": {
+   "title": "Moon Radius Km",
+   "type": "number"
+  },
+  "location": {
+   "$ref": "#/$defs/Location"
+  },
+  "start_utc": {
+   "title": "Start Utc",
+   "type": "string"
+  },
+  "end_utc": {
+   "title": "End Utc",
+   "type": "string"
+  },
+  "step_minutes": {
+   "title": "Step Minutes",
+   "type": "number"
+  },
+  "visibility_definition": {
+   "enum": [
+    "center",
+    "upper_limb"
+   ],
+   "title": "Visibility Definition",
+   "type": "string"
+  },
+  "horizon": {
+   "$ref": "#/$defs/HorizonInfo"
+  },
+  "summary": {
+   "$ref": "#/$defs/Summary"
+  },
+  "windows": {
+   "items": {
+    "$ref": "#/$defs/VisibilityWindow"
+   },
+   "title": "Windows",
+   "type": "array"
+  },
+  "time_series": {
+   "items": {
+    "$ref": "#/$defs/TimeSeriesPoint"
+   },
+   "title": "Time Series",
+   "type": "array"
+  },
+  "assumptions": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Assumptions",
+   "type": "array"
+  },
+  "uncertainty": {
+   "additionalProperties": true,
+   "title": "Uncertainty",
+   "type": "object"
+  },
+  "kernels": {
+   "description": "SPICE kernels used (empty for engine 'horizons').",
+   "items": {
+    "$ref": "#/$defs/KernelInfo"
+   },
+   "title": "Kernels",
+   "type": "array"
+  },
+  "data_source": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/DataSourceInfo"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "mission": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/MissionContext"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "generated_utc": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Generated Utc"
+  },
+  "data_status": {
+   "enum": [
+    "REAL",
+    "MOCK",
+    "PARTIAL",
+    "UNAVAILABLE"
+   ],
+   "title": "Data Status",
+   "type": "string"
+  },
+  "source": {
+   "title": "Source",
+   "type": "string"
+  }
+ },
+ "required": [
+  "site_id",
+  "body_frame",
+  "moon_radius_km",
+  "location",
+  "start_utc",
+  "end_utc",
+  "step_minutes",
+  "visibility_definition",
+  "horizon",
+  "summary",
+  "windows",
+  "time_series",
+  "assumptions",
+  "data_status",
+  "source"
+ ],
+ "title": "VisibilityResult",
+ "type": "object"
+}

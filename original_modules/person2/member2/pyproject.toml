@@ -1,0 +1,13 @@
+[project]
+name = "visibility_planner"
+version = "1.2.0"
+description = "LUNA NAV AI Member 02: Solar & Earth visibility planner for lunar sites (NASA SPICE)"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "needs_lola: requires the NASA LOLA DEM in data/lola (auto-skipped if absent)",
+    "needs_network: requires the live NASA/JPL Horizons API (auto-skipped if unreachable)",
+    "needs_kernels: requires SPICE kernels in data/spice_kernels (auto-skipped if absent)",
+]

@@ -1,0 +1,23 @@
+{
+  "start": {
+    "lat_deg": -88.811008,
+    "lon_deg": -56.309932,
+    "elevation_m": 1821.4,
+    "frame": "IAU_MOON_ME"
+  },
+  "target": {
+    "lat_deg": -88.833164,
+    "lon_deg": 132.70939,
+    "elevation_m": 711.8,
+    "frame": "IAU_MOON_ME"
+  },
+  "constraints": {
+    "max_slope_deg": 15
+  },
+  "algorithm": "astar",
+  "strategies": [
+    "shortest",
+    "balanced",
+    "gentle"
+  ]
+}

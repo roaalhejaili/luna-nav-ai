@@ -1,0 +1,300 @@
+{
+ "$defs": {
+  "HorizonProfile": {
+   "description": "Horizon elevation (deg) as a function of azimuth (deg clockwise from north).\n\nThis is also the JSON exchange format with Member 01 (terrain).",
+   "properties": {
+    "site_id": {
+     "description": "Site the profile belongs to.",
+     "minLength": 1,
+     "title": "Site Id",
+     "type": "string"
+    },
+    "data_status": {
+     "description": "REAL if derived from measured terrain.",
+     "enum": [
+      "REAL",
+      "MOCK",
+      "PARTIAL",
+      "UNAVAILABLE"
+     ],
+     "title": "Data Status",
+     "type": "string"
+    },
+    "source": {
+     "description": "Provenance, e.g. 'synthetic_fixture'.",
+     "minLength": 1,
+     "title": "Source",
+     "type": "string"
+    },
+    "azimuth_deg": {
+     "description": "Degrees, [0, 360).",
+     "items": {
+      "type": "number"
+     },
+     "minItems": 2,
+     "title": "Azimuth Deg",
+     "type": "array"
+    },
+    "elevation_deg": {
+     "description": "Degrees, [-90, 90].",
+     "items": {
+      "type": "number"
+     },
+     "minItems": 2,
+     "title": "Elevation Deg",
+     "type": "array"
+    },
+    "profile_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Optional identifier of this profile.",
+     "title": "Profile Id"
+    }
+   },
+   "required": [
+    "site_id",
+    "data_status",
+    "source",
+    "azimuth_deg",
+    "elevation_deg"
+   ],
+   "title": "HorizonProfile",
+   "type": "object"
+  },
+  "MissionContext": {
+   "additionalProperties": true,
+   "description": "Optional shared mission metadata (team-wide mission input). Echoed back, not interpreted.",
+   "properties": {
+    "mission_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Mission Id"
+    },
+    "mission_type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Mission Type"
+    },
+    "target": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Target"
+    },
+    "constraints": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "e.g. {'max_dark_hours': 50, 'max_no_contact_hours': 24}. Not evaluated here.",
+     "title": "Constraints"
+    }
+   },
+   "title": "MissionContext",
+   "type": "object"
+  },
+  "SiteInput": {
+   "additionalProperties": false,
+   "description": "A lunar surface location (MOON_ME, planetocentric, east-positive longitude).",
+   "properties": {
+    "site_id": {
+     "default": "site",
+     "maxLength": 100,
+     "minLength": 1,
+     "title": "Site Id",
+     "type": "string"
+    },
+    "lat_deg": {
+     "description": "Latitude, deg, south negative.",
+     "maximum": 90.0,
+     "minimum": -90.0,
+     "title": "Lat Deg",
+     "type": "number"
+    },
+    "lon_deg_east": {
+     "description": "East longitude, deg. Output normalised to [-180,180).",
+     "maximum": 360.0,
+     "minimum": -180.0,
+     "title": "Lon Deg East",
+     "type": "number"
+    },
+    "alt_m": {
+     "default": 0.0,
+     "description": "Height above the 1737.4 km sphere, meters.",
+     "maximum": 20000.0,
+     "minimum": -20000.0,
+     "title": "Alt M",
+     "type": "number"
+    }
+   },
+   "required": [
+    "lat_deg",
+    "lon_deg_east"
+   ],
+   "title": "SiteInput",
+   "type": "object"
+  }
+ },
+ "additionalProperties": false,
+ "description": "Input of analyze_site / POST /api/v1/visibility/analyze.",
+ "properties": {
+  "step_minutes": {
+   "default": 10.0,
+   "description": "Sampling step, minutes.",
+   "maximum": 1440.0,
+   "minimum": 0.5,
+   "title": "Step Minutes",
+   "type": "number"
+  },
+  "visibility_definition": {
+   "default": "center",
+   "description": "'center': disk centre above horizon (matches Horizons); 'upper_limb': any part of the disk above horizon.",
+   "enum": [
+    "center",
+    "upper_limb"
+   ],
+   "title": "Visibility Definition",
+   "type": "string"
+  },
+  "horizon_profile": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/HorizonProfile"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Inline terrain horizon (e.g. from Member 01). Takes precedence."
+  },
+  "horizon_profile_id": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "'lola': REAL horizon computed at the site from NASA LRO LOLA LDEM_75S_240M (sites south of 75 S). Synthetic MOCK profiles: 'flat' | 'ridge' | 'crater_rim'.",
+   "title": "Horizon Profile Id"
+  },
+  "observer_height_m": {
+   "default": 2.0,
+   "description": "For 'lola': height of the observer (camera, antenna, solar panel) above the local terrain, meters.",
+   "maximum": 100.0,
+   "minimum": 0.0,
+   "title": "Observer Height M",
+   "type": "number"
+  },
+  "use_mock": {
+   "default": false,
+   "description": "Return the labelled MOCK example instead of computing.",
+   "title": "Use Mock",
+   "type": "boolean"
+  },
+  "engine": {
+   "default": "auto",
+   "description": "'auto' (default): live NASA/JPL Horizons API, falling back to local NASA NAIF SPICE kernels if Horizons is unreachable and kernels exist. 'horizons': live API only. 'spice': offline kernels only.",
+   "enum": [
+    "horizons",
+    "spice",
+    "auto"
+   ],
+   "title": "Engine",
+   "type": "string"
+  },
+  "site": {
+   "$ref": "#/$defs/SiteInput"
+  },
+  "start_utc": {
+   "format": "date-time",
+   "title": "Start Utc",
+   "type": "string"
+  },
+  "end_utc": {
+   "anyOf": [
+    {
+     "format": "date-time",
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "End Utc"
+  },
+  "duration_days": {
+   "anyOf": [
+    {
+     "exclusiveMinimum": 0,
+     "maximum": 400.0,
+     "type": "number"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Duration Days"
+  },
+  "include_time_series": {
+   "default": true,
+   "title": "Include Time Series",
+   "type": "boolean"
+  },
+  "mission": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/MissionContext"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  }
+ },
+ "required": [
+  "site",
+  "start_utc"
+ ],
+ "title": "VisibilityRequest",
+ "type": "object"
+}

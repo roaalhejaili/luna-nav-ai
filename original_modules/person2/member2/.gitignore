@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/spice_kernels/*.bsp
+data/spice_kernels/*.bpc
+data/spice_kernels/*.part
+examples/output/*.json
+data/lola/*.img
+data/lola/*.part

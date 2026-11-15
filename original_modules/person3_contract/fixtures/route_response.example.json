@@ -1,0 +1,136 @@
+{
+  "route_id": "9cb375c8-ee01-489a-9016-6753aa560abb",
+  "request_id": "be756635-7e6a-4b40-a41b-739ac94f1887",
+  "generated_at_utc": "2026-11-14T08:14:20.078Z",
+  "data_status": "MOCK",
+  "frame": "IAU_MOON_ME",
+  "algorithm": "astar",
+  "start": {
+    "lat_deg": -88.811008,
+    "lon_deg": -56.309932,
+    "elevation_m": 1821.4,
+    "frame": "IAU_MOON_ME"
+  },
+  "target": {
+    "lat_deg": -88.833164,
+    "lon_deg": 132.70939,
+    "elevation_m": 711.8,
+    "frame": "IAU_MOON_ME"
+  },
+  "max_slope_limit_deg": 15,
+  "alternatives": [
+    {
+      "alt_id": "shortest-1",
+      "strategy": "shortest",
+      "distance_m": 74555.4,
+      "straight_line_distance_m": 71215.4,
+      "max_slope_deg": 13.65,
+      "mean_slope_deg": 2.98,
+      "elevation_gain_m": 607.2,
+      "elevation_loss_m": 1716.8,
+      "waypoints": [
+        {
+          "lat_deg": -88.811008,
+          "lon_deg": -56.309932,
+          "elevation_m": 1821.4,
+          "frame": "IAU_MOON_ME"
+        },
+        {
+          "lat_deg": -89.765648,
+          "lon_deg": -129.289407,
+          "elevation_m": 667.6,
+          "frame": "IAU_MOON_ME"
+        },
+        {
+          "lat_deg": -89.754875,
+          "lon_deg": -132.273689,
+          "elevation_m": 745.7,
+          "frame": "IAU_MOON_ME"
+        }
+      ],
+      "warnings": [
+        "Terrain is MOCK: SYNTHETIC south-pole fixture (not NASA data).",
+        "Route reaches 13.7 deg, close to the 15 deg limit."
+      ]
+    },
+    {
+      "alt_id": "balanced-2",
+      "strategy": "balanced",
+      "distance_m": 77460.7,
+      "straight_line_distance_m": 71215.4,
+      "max_slope_deg": 2.82,
+      "mean_slope_deg": 1.27,
+      "elevation_gain_m": 136.3,
+      "elevation_loss_m": 1245.9,
+      "waypoints": [
+        {
+          "lat_deg": -88.811008,
+          "lon_deg": -56.309932,
+          "elevation_m": 1821.4,
+          "frame": "IAU_MOON_ME"
+        },
+        {
+          "lat_deg": -89.03856,
+          "lon_deg": -59.036243,
+          "elevation_m": 1839.8,
+          "frame": "IAU_MOON_ME"
+        },
+        {
+          "lat_deg": -89.055103,
+          "lon_deg": -60.751174,
+          "elevation_m": 1819.1,
+          "frame": "IAU_MOON_ME"
+        }
+      ],
+      "warnings": [
+        "Terrain is MOCK: SYNTHETIC south-pole fixture (not NASA data)."
+      ]
+    },
+    {
+      "alt_id": "gentle-3",
+      "strategy": "gentle",
+      "distance_m": 78339.4,
+      "straight_line_distance_m": 71215.4,
+      "max_slope_deg": 2.82,
+      "mean_slope_deg": 1.11,
+      "elevation_gain_m": 118.9,
+      "elevation_loss_m": 1228.5,
+      "waypoints": [
+        {
+          "lat_deg": -88.811008,
+          "lon_deg": -56.309932,
+          "elevation_m": 1821.4,
+          "frame": "IAU_MOON_ME"
+        },
+        {
+          "lat_deg": -89.03856,
+          "lon_deg": -59.036243,
+          "elevation_m": 1839.8,
+          "frame": "IAU_MOON_ME"
+        },
+        {
+          "lat_deg": -89.055103,
+          "lon_deg": -60.751174,
+          "elevation_m": 1819.1,
+          "frame": "IAU_MOON_ME"
+        }
+      ],
+      "warnings": [
+        "Terrain is MOCK: SYNTHETIC south-pole fixture (not NASA data)."
+      ]
+    }
+  ],
+  "terrain_source": {
+    "name": "SYNTHETIC south-pole fixture (not NASA data)",
+    "version": "fixture-1.0.0",
+    "resolution_m": 500,
+    "data_status": "MOCK"
+  },
+  "operational_validity": "NOT_VALIDATED",
+  "disclaimers": [
+    "Routes are exploratory terrain-only estimates. Operational validity is NOT validated.",
+    "No hazard, rock-field, illumination or communication analysis is included in this module.",
+    "A candidate site or route is not an approved landing site or traverse."
+  ],
+  "_note": "waypoints truncated to 3 per alternative in this example"
+}

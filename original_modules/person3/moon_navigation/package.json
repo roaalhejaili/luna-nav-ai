@@ -1,0 +1,40 @@
+{
+  "name": "moon_navigation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "LUNA NAV AI - Module 03: Smart Moon Maps & Navigation (React, TypeScript, OpenLayers, A*/Dijkstra)",
+  "scripts": {
+    "start": "tsx src/server/index.ts",
+    "dev:server": "tsx watch src/server/index.ts",
+    "dev:web": "vite",
+    "build:web": "vite build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.22.3",
+    "ol": "^10.11.0",
+    "proj4": "^2.23.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.25",
+    "@types/express-serve-static-core": "^4.19.9",
+    "@types/node": "^26.6.6",
+    "@types/proj4": "^2.5.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/supertest": "^7.2.1",
+    "@vitejs/plugin-react": "^6.3.0",
+    "supertest": "^7.3.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}

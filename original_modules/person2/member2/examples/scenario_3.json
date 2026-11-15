@@ -1,0 +1,22 @@
+{
+ "site": {
+  "site_id": "site_C_connecting_ridge",
+  "lat_deg": -89.45,
+  "lon_deg_east": -137.3,
+  "alt_m": 0.0
+ },
+ "start_utc": "2027-01-10T00:00:00Z",
+ "duration_days": 7,
+ "step_minutes": 10,
+ "visibility_definition": "upper_limb",
+ "mission": {
+  "mission_id": "SCN-3",
+  "mission_type": "science",
+  "target": "Shackleton connecting ridge (well-lit ridge)",
+  "constraints": {
+   "max_dark_hours": 50,
+   "max_no_contact_hours": 24
+  }
+ },
+ "horizon_profile_id": "lola"
+}

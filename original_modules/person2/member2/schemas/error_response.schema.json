@@ -1,0 +1,67 @@
+{
+ "$defs": {
+  "ErrorDetail": {
+   "properties": {
+    "code": {
+     "enum": [
+      "VALIDATION_ERROR",
+      "KERNELS_UNAVAILABLE",
+      "UPSTREAM_UNAVAILABLE",
+      "TERRAIN_UNAVAILABLE",
+      "UPSTREAM_ERROR",
+      "NOT_FOUND",
+      "COMPUTATION_ERROR",
+      "INTERNAL_ERROR"
+     ],
+     "title": "Code",
+     "type": "string"
+    },
+    "message": {
+     "title": "Message",
+     "type": "string"
+    },
+    "details": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "title": "Details",
+     "type": "array"
+    }
+   },
+   "required": [
+    "code",
+    "message"
+   ],
+   "title": "ErrorDetail",
+   "type": "object"
+  }
+ },
+ "description": "Every non-2xx response of the REST API has exactly this shape.",
+ "properties": {
+  "error": {
+   "$ref": "#/$defs/ErrorDetail"
+  },
+  "data_status": {
+   "const": "UNAVAILABLE",
+   "default": "UNAVAILABLE",
+   "title": "Data Status",
+   "type": "string"
+  },
+  "module": {
+   "default": "visibility_planner",
+   "title": "Module",
+   "type": "string"
+  },
+  "schema_version": {
+   "default": "1.1",
+   "title": "Schema Version",
+   "type": "string"
+  }
+ },
+ "required": [
+  "error"
+ ],
+ "title": "ErrorResponse",
+ "type": "object"
+}

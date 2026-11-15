@@ -1,0 +1,68 @@
+{
+ "description": "Horizon elevation (deg) as a function of azimuth (deg clockwise from north).\n\nThis is also the JSON exchange format with Member 01 (terrain).",
+ "properties": {
+  "site_id": {
+   "description": "Site the profile belongs to.",
+   "minLength": 1,
+   "title": "Site Id",
+   "type": "string"
+  },
+  "data_status": {
+   "description": "REAL if derived from measured terrain.",
+   "enum": [
+    "REAL",
+    "MOCK",
+    "PARTIAL",
+    "UNAVAILABLE"
+   ],
+   "title": "Data Status",
+   "type": "string"
+  },
+  "source": {
+   "description": "Provenance, e.g. 'synthetic_fixture'.",
+   "minLength": 1,
+   "title": "Source",
+   "type": "string"
+  },
+  "azimuth_deg": {
+   "description": "Degrees, [0, 360).",
+   "items": {
+    "type": "number"
+   },
+   "minItems": 2,
+   "title": "Azimuth Deg",
+   "type": "array"
+  },
+  "elevation_deg": {
+   "description": "Degrees, [-90, 90].",
+   "items": {
+    "type": "number"
+   },
+   "minItems": 2,
+   "title": "Elevation Deg",
+   "type": "array"
+  },
+  "profile_id": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Optional identifier of this profile.",
+   "title": "Profile Id"
+  }
+ },
+ "required": [
+  "site_id",
+  "data_status",
+  "source",
+  "azimuth_deg",
+  "elevation_deg"
+ ],
+ "title": "HorizonProfile",
+ "type": "object"
+}

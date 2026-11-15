@@ -1,0 +1,11 @@
+{
+  "request": "robotic science mission near lunar south pole",
+  "mission_type": "robotic",
+  "dates_utc": ["2030-01-01T00:00:00Z", "2030-01-02T00:00:00Z"],
+  "duration_hours": 48,
+  "objectives": ["sunlight", "Earth communication"],
+  "priorities": {"terrain": 1, "sunlight": 2, "communication": 2, "navigation": 0},
+  "constraints": {"max_slope_deg": 15, "min_sunlight_hours": 20, "max_blackout_hours": 40},
+  "require_navigation": false,
+  "allow_mock_recommendation": true
+}

@@ -1,0 +1,270 @@
+{
+  "mission_id": "0f932fa4-fb6f-4cff-a9f5-80dcc915ea90",
+  "requirements": {
+    "mission_type": "robotic",
+    "request": "robotic science mission near lunar south pole",
+    "dates_utc": [
+      "2030-01-01T00:00:00Z",
+      "2030-01-02T00:00:00Z"
+    ],
+    "duration_hours": 48.0,
+    "objectives": [
+      "sunlight",
+      "Earth communication"
+    ],
+    "priorities": {
+      "terrain": 1.0,
+      "sunlight": 2.0,
+      "communication": 2.0,
+      "navigation": 0.0
+    },
+    "constraints": {
+      "max_slope_deg": 1.0
+    },
+    "require_navigation": false,
+    "allow_mock_recommendation": true
+  },
+  "candidates": [
+    {
+      "site": {
+        "site_id": "A",
+        "name": "South Polar Ridge",
+        "latitude_deg": -89.1,
+        "longitude_deg": 45.0,
+        "elevation_m": -1200.0,
+        "slope_deg": 6.0,
+        "coordinate_frame": "IAU_MOON_2015: planetocentric latitude, east-positive longitude, mean Earth/polar axis",
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.072998Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "visibility": {
+        "site_id": "A",
+        "date_utc": "2030-01-01T00:00:00Z",
+        "sunlight_hours": 33.599999999999994,
+        "earth_visible_hours": 33.599999999999994,
+        "max_blackout_hours": 12.0,
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.073964Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "route": null,
+      "feasible": false,
+      "violations": [
+        "slope exceeds maximum"
+      ],
+      "score": null,
+      "explanation": "MOCK evidence; rejected: slope exceeds maximum"
+    },
+    {
+      "site": {
+        "site_id": "A",
+        "name": "South Polar Ridge",
+        "latitude_deg": -89.1,
+        "longitude_deg": 45.0,
+        "elevation_m": -1200.0,
+        "slope_deg": 6.0,
+        "coordinate_frame": "IAU_MOON_2015: planetocentric latitude, east-positive longitude, mean Earth/polar axis",
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.072998Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "visibility": {
+        "site_id": "A",
+        "date_utc": "2030-01-02T00:00:00Z",
+        "sunlight_hours": 36.0,
+        "earth_visible_hours": 33.599999999999994,
+        "max_blackout_hours": 12.0,
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.074001Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "route": null,
+      "feasible": false,
+      "violations": [
+        "slope exceeds maximum"
+      ],
+      "score": null,
+      "explanation": "MOCK evidence; rejected: slope exceeds maximum"
+    },
+    {
+      "site": {
+        "site_id": "B",
+        "name": "Crater Rim",
+        "latitude_deg": -88.7,
+        "longitude_deg": 90.0,
+        "elevation_m": -1800.0,
+        "slope_deg": 12.0,
+        "coordinate_frame": "IAU_MOON_2015: planetocentric latitude, east-positive longitude, mean Earth/polar axis",
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.073040Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "visibility": {
+        "site_id": "B",
+        "date_utc": "2030-01-01T00:00:00Z",
+        "sunlight_hours": 40.8,
+        "earth_visible_hours": 21.6,
+        "max_blackout_hours": 30.0,
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.074010Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "route": null,
+      "feasible": false,
+      "violations": [
+        "slope exceeds maximum"
+      ],
+      "score": null,
+      "explanation": "MOCK evidence; rejected: slope exceeds maximum"
+    },
+    {
+      "site": {
+        "site_id": "B",
+        "name": "Crater Rim",
+        "latitude_deg": -88.7,
+        "longitude_deg": 90.0,
+        "elevation_m": -1800.0,
+        "slope_deg": 12.0,
+        "coordinate_frame": "IAU_MOON_2015: planetocentric latitude, east-positive longitude, mean Earth/polar axis",
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.073040Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "visibility": {
+        "site_id": "B",
+        "date_utc": "2030-01-02T00:00:00Z",
+        "sunlight_hours": 43.2,
+        "earth_visible_hours": 21.6,
+        "max_blackout_hours": 30.0,
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.074021Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "route": null,
+      "feasible": false,
+      "violations": [
+        "slope exceeds maximum"
+      ],
+      "score": null,
+      "explanation": "MOCK evidence; rejected: slope exceeds maximum"
+    },
+    {
+      "site": {
+        "site_id": "C",
+        "name": "Highland Plain",
+        "latitude_deg": -87.5,
+        "longitude_deg": 120.0,
+        "elevation_m": 500.0,
+        "slope_deg": 19.0,
+        "coordinate_frame": "IAU_MOON_2015: planetocentric latitude, east-positive longitude, mean Earth/polar axis",
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.073048Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "visibility": {
+        "site_id": "C",
+        "date_utc": "2030-01-01T00:00:00Z",
+        "sunlight_hours": 24.0,
+        "earth_visible_hours": 38.400000000000006,
+        "max_blackout_hours": 8.0,
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.074028Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "route": null,
+      "feasible": false,
+      "violations": [
+        "slope exceeds maximum"
+      ],
+      "score": null,
+      "explanation": "MOCK evidence; rejected: slope exceeds maximum"
+    },
+    {
+      "site": {
+        "site_id": "C",
+        "name": "Highland Plain",
+        "latitude_deg": -87.5,
+        "longitude_deg": 120.0,
+        "elevation_m": 500.0,
+        "slope_deg": 19.0,
+        "coordinate_frame": "IAU_MOON_2015: planetocentric latitude, east-positive longitude, mean Earth/polar axis",
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.073048Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "visibility": {
+        "site_id": "C",
+        "date_utc": "2030-01-02T00:00:00Z",
+        "sunlight_hours": 26.400000000000002,
+        "earth_visible_hours": 38.400000000000006,
+        "max_blackout_hours": 8.0,
+        "provenance": {
+          "status": "MOCK",
+          "source": "LUNA Person 4 deterministic fixture",
+          "observed_at_utc": "2026-11-14T09:41:40.074036Z",
+          "uncertainty": "Synthetic demonstration values; not scientific measurements"
+        }
+      },
+      "route": null,
+      "feasible": false,
+      "violations": [
+        "slope exceeds maximum"
+      ],
+      "score": null,
+      "explanation": "MOCK evidence; rejected: slope exceeds maximum"
+    }
+  ],
+  "ranked_alternatives": [],
+  "recommendation": null,
+  "warnings": [
+    "MOCK data: demonstration only; no flight or scientific recommendation",
+    "No feasible candidate"
+  ],
+  "limitations": [
+    "No ephemeris, illumination or terrain measurements verified in mock mode"
+  ],
+  "generated_at_utc": "2026-11-14T09:41:40.078564Z",
+  "metrics": {
+    "runtime_ms": 16.636,
+    "llm_calls": 0,
+    "tool_calls": 7,
+    "constraint_satisfaction": 0,
+    "valid_recommendation_rate": 0,
+    "unsupported_claim_rate": 0,
+    "replanning_success": 0
+  }
+}

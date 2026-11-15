@@ -1,0 +1,15 @@
+{
+  "detail": [
+    {
+      "type": "missing",
+      "loc": [
+        "body",
+        "dates_utc"
+      ],
+      "msg": "Field required",
+      "input": {
+        "duration_hours": 48
+      }
+    }
+  ]
+}

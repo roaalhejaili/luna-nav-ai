@@ -1,0 +1,49 @@
+@import "ol/ol.css";
+
+:root {
+  --bg: #0b0e14;
+  --panel: #131824;
+  --line: #263044;
+  --text: #e6eaf2;
+  --muted: #8b95a9;
+  --accent: #5aa9ff;
+  --warn: #f2b84b;
+  --err: #ff6b6b;
+}
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+
+.app { display: grid; grid-template-columns: 340px 1fr; height: 100%; }
+.side { background: var(--panel); border-right: 1px solid var(--line); padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.side h1 { font-size: 16px; margin: 0; }
+.side h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 6px; }
+.badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid var(--warn); color: var(--warn); }
+.badge.real { border-color: #4cd08a; color: #4cd08a; }
+.muted { color: var(--muted); font-size: 12px; }
+.row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+input, select, button { background: #0e121b; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: inherit; }
+input, select { width: 100%; }
+button { cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: #04101f; border-color: var(--accent); font-weight: 600; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button.on { border-color: var(--accent); color: var(--accent); }
+
+.alt { border: 1px solid var(--line); border-radius: 8px; padding: 8px; cursor: pointer; }
+.alt.sel { border-color: var(--accent); background: #101a2b; }
+.alt .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.alt .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; margin-top: 4px; font-size: 12px; color: var(--muted); }
+
+.banner { border: 1px solid var(--warn); color: var(--warn); border-radius: 8px; padding: 8px; font-size: 12px; }
+.error { border: 1px solid var(--err); color: var(--err); border-radius: 8px; padding: 8px; font-size: 12px; }
+
+.mapwrap { position: relative; }
+#map { position: absolute; inset: 0; background: #05070b; }
+.hud { position: absolute; left: 10px; bottom: 10px; background: rgba(11,14,20,.85); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font: 12px ui-monospace, monospace; z-index: 5; }
+.legend { position: absolute; right: 10px; bottom: 10px; background: rgba(11,14,20,.85); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-size: 11px; z-index: 5; }
+.legend .bar { width: 160px; height: 8px; border-radius: 4px; margin: 4px 0; }
+
+@media (max-width: 800px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 60vh; }
+}

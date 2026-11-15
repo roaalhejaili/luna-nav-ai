@@ -1,0 +1,142 @@
+{
+ "schema_version": "1.1",
+ "module": "visibility_planner",
+ "site_id": "site_A",
+ "location": {
+  "lat_deg": -86.0,
+  "lon_deg_east": 0.0,
+  "alt_m": 0.0
+ },
+ "body_frame": "MOON_ME",
+ "step_minutes": 30.0,
+ "visibility_definition": "center",
+ "horizon": {
+  "type": "terrain",
+  "profile_id": "ridge",
+  "data_status": "MOCK",
+  "source": "synthetic_fixture",
+  "details": null
+ },
+ "windows": [
+  {
+   "label": "A",
+   "start_utc": "2026-11-15T00:00:00Z",
+   "end_utc": "2026-11-22T00:00:00Z",
+   "duration_hours": 168.0,
+   "summary": {
+    "sun_visible_fraction": 0.981607,
+    "earth_visible_fraction": 1.0,
+    "sun_visible_fraction_terrain": 0.981607,
+    "earth_visible_fraction_terrain": 0.728535,
+    "longest_dark_hours": 3.09,
+    "longest_no_contact_hours": 0.0,
+    "longest_dark_hours_terrain": 3.09,
+    "longest_no_contact_hours_terrain": 45.6062,
+    "sun_elevation_max_deg": 5.0227,
+    "sun_elevation_mean_deg": 2.6795,
+    "hours_until_sunset": null,
+    "hours_until_earthset": null,
+    "hours_until_sunset_terrain": null,
+    "hours_until_earthset_terrain": null
+   },
+   "data_status": "MOCK"
+  },
+  {
+   "label": "B",
+   "start_utc": "2026-11-29T00:00:00Z",
+   "end_utc": "2026-12-06T00:00:00Z",
+   "duration_hours": 168.0,
+   "summary": {
+    "sun_visible_fraction": 0.654631,
+    "earth_visible_fraction": 0.525784,
+    "sun_visible_fraction_terrain": 0.654631,
+    "earth_visible_fraction_terrain": 0.245098,
+    "longest_dark_hours": 58.022,
+    "longest_no_contact_hours": 79.6684,
+    "longest_dark_hours_terrain": 58.022,
+    "longest_no_contact_hours_terrain": 126.8235,
+    "sun_elevation_max_deg": 3.738,
+    "sun_elevation_mean_deg": 0.943,
+    "hours_until_sunset": 109.978,
+    "hours_until_earthset": 88.3316,
+    "hours_until_sunset_terrain": 109.978,
+    "hours_until_earthset_terrain": 41.1765
+   },
+   "data_status": "MOCK"
+  }
+ ],
+ "table": {
+  "sun_visible_fraction": [
+   0.981607,
+   0.654631
+  ],
+  "earth_visible_fraction": [
+   1.0,
+   0.525784
+  ],
+  "sun_visible_fraction_terrain": [
+   0.981607,
+   0.654631
+  ],
+  "earth_visible_fraction_terrain": [
+   0.728535,
+   0.245098
+  ],
+  "longest_dark_hours": [
+   3.09,
+   58.022
+  ],
+  "longest_no_contact_hours": [
+   0.0,
+   79.6684
+  ],
+  "longest_dark_hours_terrain": [
+   3.09,
+   58.022
+  ],
+  "longest_no_contact_hours_terrain": [
+   45.6062,
+   126.8235
+  ],
+  "sun_elevation_max_deg": [
+   5.0227,
+   3.738
+  ],
+  "sun_elevation_mean_deg": [
+   2.6795,
+   0.943
+  ],
+  "hours_until_sunset": [
+   null,
+   109.978
+  ],
+  "hours_until_earthset": [
+   null,
+   88.3316
+  ],
+  "hours_until_sunset_terrain": [
+   null,
+   109.978
+  ],
+  "hours_until_earthset_terrain": [
+   null,
+   41.1765
+  ]
+ },
+ "data_source": {
+  "engine": "mock",
+  "name": "synthetic_fixture (numbers copied from a run of engine 'horizons': NASA/JPL Horizons API (live))",
+  "url": "https://ssd.jpl.nasa.gov/api/horizons.api",
+  "requests": 0,
+  "download_required": false
+ },
+ "mission": {
+  "mission_id": "MOCK-EXAMPLE",
+  "mission_type": "science",
+  "target": "lunar south pole",
+  "constraints": null,
+  "note": "MOCK example for integration only. Numbers copied from a real NASA-data run of the request in 'mission'; regenerate with scripts/generate_fixtures.py. Do not use for science."
+ },
+ "data_status": "MOCK",
+ "source": "synthetic_fixture (MOCK example for integration only. Numbers copied from a real NASA-data run of the request in 'mission'; regenerate with scripts/generate_fixtures.py. Do not use for science.)"
+}

@@ -1,0 +1,563 @@
+{
+ "$defs": {
+  "DataSourceInfo": {
+   "additionalProperties": true,
+   "description": "Which NASA data produced the numbers.",
+   "properties": {
+    "engine": {
+     "enum": [
+      "horizons",
+      "spice",
+      "mock"
+     ],
+     "title": "Engine",
+     "type": "string"
+    },
+    "name": {
+     "title": "Name",
+     "type": "string"
+    },
+    "url": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Url"
+    },
+    "ephemeris": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Ephemeris"
+    },
+    "moon_frame": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Moon Frame"
+    },
+    "requests": {
+     "default": 0,
+     "title": "Requests",
+     "type": "integer"
+    },
+    "download_required": {
+     "default": false,
+     "title": "Download Required",
+     "type": "boolean"
+    },
+    "accessed_utc": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Accessed Utc"
+    },
+    "fallback_reason": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Set when engine 'auto' fell back to SPICE.",
+     "title": "Fallback Reason"
+    }
+   },
+   "required": [
+    "engine",
+    "name"
+   ],
+   "title": "DataSourceInfo",
+   "type": "object"
+  },
+  "HorizonInfo": {
+   "properties": {
+    "type": {
+     "enum": [
+      "geometric",
+      "terrain"
+     ],
+     "title": "Type",
+     "type": "string"
+    },
+    "profile_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Profile Id"
+    },
+    "data_status": {
+     "enum": [
+      "REAL",
+      "MOCK"
+     ],
+     "title": "Data Status",
+     "type": "string"
+    },
+    "source": {
+     "title": "Source",
+     "type": "string"
+    },
+    "details": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "For LOLA horizons: site terrain height, observer height, ray range, horizon min/max (no per-azimuth arrays).",
+     "title": "Details"
+    }
+   },
+   "required": [
+    "type",
+    "data_status",
+    "source"
+   ],
+   "title": "HorizonInfo",
+   "type": "object"
+  },
+  "Location": {
+   "properties": {
+    "lat_deg": {
+     "title": "Lat Deg",
+     "type": "number"
+    },
+    "lon_deg_east": {
+     "title": "Lon Deg East",
+     "type": "number"
+    },
+    "alt_m": {
+     "title": "Alt M",
+     "type": "number"
+    }
+   },
+   "required": [
+    "lat_deg",
+    "lon_deg_east",
+    "alt_m"
+   ],
+   "title": "Location",
+   "type": "object"
+  },
+  "MissionContext": {
+   "additionalProperties": true,
+   "description": "Optional shared mission metadata (team-wide mission input). Echoed back, not interpreted.",
+   "properties": {
+    "mission_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Mission Id"
+    },
+    "mission_type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Mission Type"
+    },
+    "target": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Target"
+    },
+    "constraints": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "e.g. {'max_dark_hours': 50, 'max_no_contact_hours': 24}. Not evaluated here.",
+     "title": "Constraints"
+    }
+   },
+   "title": "MissionContext",
+   "type": "object"
+  },
+  "Summary": {
+   "properties": {
+    "sun_visible_fraction": {
+     "maximum": 1,
+     "minimum": 0,
+     "title": "Sun Visible Fraction",
+     "type": "number"
+    },
+    "earth_visible_fraction": {
+     "maximum": 1,
+     "minimum": 0,
+     "title": "Earth Visible Fraction",
+     "type": "number"
+    },
+    "sun_visible_fraction_terrain": {
+     "anyOf": [
+      {
+       "maximum": 1,
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Sun Visible Fraction Terrain"
+    },
+    "earth_visible_fraction_terrain": {
+     "anyOf": [
+      {
+       "maximum": 1,
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Earth Visible Fraction Terrain"
+    },
+    "longest_dark_hours": {
+     "minimum": 0,
+     "title": "Longest Dark Hours",
+     "type": "number"
+    },
+    "longest_no_contact_hours": {
+     "minimum": 0,
+     "title": "Longest No Contact Hours",
+     "type": "number"
+    },
+    "longest_dark_hours_terrain": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Longest Dark Hours Terrain"
+    },
+    "longest_no_contact_hours_terrain": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Longest No Contact Hours Terrain"
+    },
+    "sun_elevation_max_deg": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Max Sun elevation over samples.",
+     "title": "Sun Elevation Max Deg"
+    },
+    "sun_elevation_mean_deg": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Mean Sun elevation over samples.",
+     "title": "Sun Elevation Mean Deg"
+    },
+    "hours_until_sunset": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Hours from start_utc to the first sunset (geometric). Null if the Sun is down at start or does not set before end_utc.",
+     "title": "Hours Until Sunset"
+    },
+    "hours_until_earthset": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Hours from start_utc to the first Earthset (geometric); same rules.",
+     "title": "Hours Until Earthset"
+    },
+    "hours_until_sunset_terrain": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Hours Until Sunset Terrain"
+    },
+    "hours_until_earthset_terrain": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Hours Until Earthset Terrain"
+    }
+   },
+   "required": [
+    "sun_visible_fraction",
+    "earth_visible_fraction",
+    "longest_dark_hours",
+    "longest_no_contact_hours"
+   ],
+   "title": "Summary",
+   "type": "object"
+  },
+  "WindowComparison": {
+   "properties": {
+    "label": {
+     "title": "Label",
+     "type": "string"
+    },
+    "start_utc": {
+     "title": "Start Utc",
+     "type": "string"
+    },
+    "end_utc": {
+     "title": "End Utc",
+     "type": "string"
+    },
+    "duration_hours": {
+     "title": "Duration Hours",
+     "type": "number"
+    },
+    "summary": {
+     "$ref": "#/$defs/Summary"
+    },
+    "data_status": {
+     "enum": [
+      "REAL",
+      "MOCK",
+      "PARTIAL",
+      "UNAVAILABLE"
+     ],
+     "title": "Data Status",
+     "type": "string"
+    }
+   },
+   "required": [
+    "label",
+    "start_utc",
+    "end_utc",
+    "duration_hours",
+    "summary",
+    "data_status"
+   ],
+   "title": "WindowComparison",
+   "type": "object"
+  }
+ },
+ "description": "Output of compare_windows. Numbers side by side; NO ranking or recommendation.",
+ "properties": {
+  "schema_version": {
+   "default": "1.1",
+   "title": "Schema Version",
+   "type": "string"
+  },
+  "module": {
+   "default": "visibility_planner",
+   "title": "Module",
+   "type": "string"
+  },
+  "site_id": {
+   "title": "Site Id",
+   "type": "string"
+  },
+  "location": {
+   "$ref": "#/$defs/Location"
+  },
+  "body_frame": {
+   "title": "Body Frame",
+   "type": "string"
+  },
+  "step_minutes": {
+   "title": "Step Minutes",
+   "type": "number"
+  },
+  "visibility_definition": {
+   "enum": [
+    "center",
+    "upper_limb"
+   ],
+   "title": "Visibility Definition",
+   "type": "string"
+  },
+  "horizon": {
+   "$ref": "#/$defs/HorizonInfo"
+  },
+  "windows": {
+   "items": {
+    "$ref": "#/$defs/WindowComparison"
+   },
+   "title": "Windows",
+   "type": "array"
+  },
+  "table": {
+   "additionalProperties": {
+    "items": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "type": "array"
+   },
+   "description": "Column-oriented copy of each summary metric, one value per window.",
+   "title": "Table",
+   "type": "object"
+  },
+  "data_source": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/DataSourceInfo"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "mission": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/MissionContext"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "data_status": {
+   "enum": [
+    "REAL",
+    "MOCK",
+    "PARTIAL",
+    "UNAVAILABLE"
+   ],
+   "title": "Data Status",
+   "type": "string"
+  },
+  "source": {
+   "title": "Source",
+   "type": "string"
+  }
+ },
+ "required": [
+  "site_id",
+  "location",
+  "body_frame",
+  "step_minutes",
+  "visibility_definition",
+  "horizon",
+  "windows",
+  "table",
+  "data_status",
+  "source"
+ ],
+ "title": "ComparisonResult",
+ "type": "object"
+}

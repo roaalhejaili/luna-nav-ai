@@ -1,0 +1,618 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LUNA NAV Person 4 Mission Optimizer",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mission/plan": {
+      "post": {
+        "summary": "Create Plan",
+        "operationId": "create_plan_mission_plan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Requirements"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mission/replan": {
+      "post": {
+        "summary": "Replan",
+        "operationId": "replan_mission_replan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mission/compare": {
+      "post": {
+        "summary": "Compare",
+        "operationId": "compare_mission_compare_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompareRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CompareRequest": {
+        "properties": {
+          "requirements": {
+            "$ref": "#/components/schemas/Requirements"
+          }
+        },
+        "type": "object",
+        "required": [
+          "requirements"
+        ],
+        "title": "CompareRequest"
+      },
+      "CompareResponse": {
+        "properties": {
+          "baseline": {
+            "$ref": "#/components/schemas/PlanResponse"
+          },
+          "hybrid": {
+            "$ref": "#/components/schemas/PlanResponse"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "baseline",
+          "hybrid",
+          "metrics"
+        ],
+        "title": "CompareResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Option": {
+        "properties": {
+          "site": {
+            "$ref": "#/components/schemas/Site"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "route": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Route"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feasible": {
+            "type": "boolean",
+            "title": "Feasible"
+          },
+          "violations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Violations"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "site",
+          "visibility",
+          "feasible",
+          "violations",
+          "explanation"
+        ],
+        "title": "Option"
+      },
+      "PlanResponse": {
+        "properties": {
+          "mission_id": {
+            "type": "string",
+            "title": "Mission Id"
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/Requirements"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/Option"
+            },
+            "type": "array",
+            "title": "Candidates"
+          },
+          "ranked_alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/Option"
+            },
+            "type": "array",
+            "title": "Ranked Alternatives"
+          },
+          "recommendation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Option"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "generated_at_utc": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At Utc"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mission_id",
+          "requirements",
+          "candidates",
+          "ranked_alternatives",
+          "recommendation",
+          "warnings",
+          "limitations",
+          "generated_at_utc"
+        ],
+        "title": "PlanResponse"
+      },
+      "Provenance": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "MOCK",
+              "VERIFIED",
+              "UNVERIFIED"
+            ],
+            "title": "Status"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Source"
+          },
+          "observed_at_utc": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At Utc"
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uncertainty"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "source",
+          "observed_at_utc"
+        ],
+        "title": "Provenance"
+      },
+      "ReplanRequest": {
+        "properties": {
+          "previous": {
+            "$ref": "#/components/schemas/PlanResponse"
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/Requirements"
+          }
+        },
+        "type": "object",
+        "required": [
+          "previous",
+          "requirements"
+        ],
+        "title": "ReplanRequest"
+      },
+      "Requirements": {
+        "properties": {
+          "mission_type": {
+            "type": "string",
+            "title": "Mission Type",
+            "default": "science"
+          },
+          "request": {
+            "type": "string",
+            "title": "Request",
+            "default": ""
+          },
+          "dates_utc": {
+            "items": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "type": "array",
+            "title": "Dates Utc"
+          },
+          "duration_hours": {
+            "type": "number",
+            "maximum": 8760.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Duration Hours"
+          },
+          "objectives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Objectives"
+          },
+          "priorities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Priorities"
+          },
+          "constraints": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Constraints"
+          },
+          "require_navigation": {
+            "type": "boolean",
+            "title": "Require Navigation",
+            "default": false
+          },
+          "allow_mock_recommendation": {
+            "type": "boolean",
+            "title": "Allow Mock Recommendation",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "dates_utc",
+          "duration_hours"
+        ],
+        "title": "Requirements"
+      },
+      "Route": {
+        "properties": {
+          "site_id": {
+            "type": "string",
+            "title": "Site Id"
+          },
+          "distance_m": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Distance M"
+          },
+          "accessible": {
+            "type": "boolean",
+            "title": "Accessible"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "site_id",
+          "distance_m",
+          "accessible",
+          "provenance"
+        ],
+        "title": "Route"
+      },
+      "Site": {
+        "properties": {
+          "site_id": {
+            "type": "string",
+            "title": "Site Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "latitude_deg": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude Deg"
+          },
+          "longitude_deg": {
+            "type": "number",
+            "exclusiveMaximum": 360.0,
+            "minimum": 0.0,
+            "title": "Longitude Deg"
+          },
+          "elevation_m": {
+            "type": "number",
+            "title": "Elevation M"
+          },
+          "slope_deg": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": 0.0,
+            "title": "Slope Deg"
+          },
+          "coordinate_frame": {
+            "type": "string",
+            "const": "IAU_MOON_2015: planetocentric latitude, east-positive longitude, mean Earth/polar axis",
+            "title": "Coordinate Frame",
+            "default": "IAU_MOON_2015: planetocentric latitude, east-positive longitude, mean Earth/polar axis"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "site_id",
+          "name",
+          "latitude_deg",
+          "longitude_deg",
+          "elevation_m",
+          "slope_deg",
+          "provenance"
+        ],
+        "title": "Site"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Visibility": {
+        "properties": {
+          "site_id": {
+            "type": "string",
+            "title": "Site Id"
+          },
+          "date_utc": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Date Utc"
+          },
+          "sunlight_hours": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Sunlight Hours"
+          },
+          "earth_visible_hours": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Earth Visible Hours"
+          },
+          "max_blackout_hours": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Max Blackout Hours"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "site_id",
+          "date_utc",
+          "sunlight_hours",
+          "earth_visible_hours",
+          "max_blackout_hours",
+          "provenance"
+        ],
+        "title": "Visibility"
+      }
+    }
+  }
+}

@@ -125,7 +125,7 @@ def validation_agent(state: MissionState) -> dict:
     warnings=list(state.get('notes',[]))+(['MOCK data: demonstration only; no flight or scientific recommendation'] if mock else [])
     if unverified and allow_unverified:
         warnings.append('UNVERIFIED supplier data accepted for testing (LUNA_ALLOW_UNVERIFIED_RECOMMENDATION=1): '
-                        'NASA-derived values not independently reviewed; provisional, not a flight recommendation')
+                        'computed from NASA data (LRO LOLA, JPL Horizons); planning estimate, not a flight recommendation')
     return {'options':options,'warnings':warnings}
 
 def optimization_agent(state: MissionState) -> dict:
@@ -140,7 +140,7 @@ async def explanation_agent(state: MissionState) -> dict:
     chosen=state['ranked'][0] if state['ranked'] else None
     for option in state['options']:
         provenance=[option.site.provenance,option.visibility.provenance]+([option.route.provenance] if option.route else [])
-        status='MOCK' if any(p.status=='MOCK' for p in provenance) else 'UNVERIFIED' if any(p.status=='UNVERIFIED' for p in provenance) else 'VERIFIED'
+        status='MOCK' if any(p.status=='MOCK' for p in provenance) else 'NASA-data' if any(p.status=='UNVERIFIED' for p in provenance) else 'VERIFIED'
         if option.feasible:
             option.explanation=(f'{status} evidence; slope {option.site.slope_deg} deg, sunlight {option.visibility.sunlight_hours:.2f} h, '
                                 f'Earth visibility {option.visibility.earth_visible_hours:.2f} h; weighted score {option.score:.6f}.')

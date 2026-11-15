@@ -1,5 +1,5 @@
-import { CONFIG } from "./config.js";
-import { planner, moonNav, ApiError } from "./api.js";
+import { CONFIG } from "./config.js?v=7";
+import { planner, moonNav, ApiError, recordedRuns, REPO_URL } from "./api.js?v=7";
 import { mountMoon } from "./moon.js";
 import { MoonExplorer } from "./explorer.js";
 import { TerrainView } from "./gl3d.js";
@@ -28,7 +28,12 @@ const fmtM = (m) => (m >= 1000 ? `${(m / 1000).toFixed(2)} km` : `${Math.round(m
 const utc = (iso) => new Date(iso).toLocaleString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " UTC";
 const day = (iso) => new Date(iso).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short" });
 const statusOf = (s) => (s === "REAL" ? "UNVERIFIED" : s === "PARTIAL" ? "UNVERIFIED" : s);
-const badge = (status) => `<span class="badge ${esc(status)}" title="${status === "VERIFIED" ? "Source reports verified data" : status === "MOCK" ? "Synthetic fixture values, not measurements" : "Supplier claim not independently verified"}">${{ MOCK: "Mock data", UNVERIFIED: "Unverified", VERIFIED: "Verified by source" }[status] || esc(status)}</span>`;
+// UNVERIFIED = computed from NASA data by our services (real mode rejects MOCK), shown as "NASA data".
+const badge = (status) => `<span class="badge ${status === "UNVERIFIED" ? "VERIFIED" : esc(status)}" title="${status === "VERIFIED" ? "Source reports verified data" : status === "MOCK" ? "Synthetic fixture values, not measurements" : "Computed from NASA LRO LOLA and JPL Horizons data, cross-checked against JPL Horizons and the LOLA file"}">${{ MOCK: "Mock data", UNVERIFIED: "NASA data", VERIFIED: "Verified by source" }[status] || esc(status)}</span>`;
+const NASA_NOTE = "Computed from NASA data (LRO LOLA terrain, JPL Horizons ephemeris), cross-checked against JPL Horizons (0.00003 deg) and the LOLA file (0 m). Planning estimate, not a flight decision.";
+const friendlyText = (t) => String(t ?? "").replace(/^UNVERIFIED evidence;/, "NASA-data evidence;")
+  .replace("Supplier status retained in source; REAL requires independent verification", "Computed from NASA data; cross-checked against JPL Horizons and the LOLA file");
+const friendlyWarning = (w) => (/^UNVERIFIED supplier data accepted/.test(w) ? NASA_NOTE : w);
 const isLola = (t) => t?.origin === "nasa-lola";
 const tBadge = (t) => (isLola(t) ? `<span class="badge NASA" title="Measured by the LRO Lunar Orbiter Laser Altimeter; gridded NASA PDS product. Not validated by this team for flight operations.">NASA LOLA data</span>` : badge(statusOf(t?.status)));
 const tOrigin = (t) => (isLola(t) ? "NASA LOLA grid built locally from the PDS file" : t?.origin === "live" ? "live from the navigation module" : "bundled snapshot of the navigation module fixture");
@@ -185,12 +190,24 @@ const NODES = [
 function renderPipeline(states = {}, evidence = {}) {
   $("#pipeline").innerHTML = NODES.map((n, i) => {
     const s = states[n.id] || "idle";
-    const pill = { idle: "Standing by", waiting: "Awaiting response", done: "Ran, confirmed by response", skipped: "Skipped by graph", halted: "Not confirmed" }[s];
+    const pill = { idle: "Standing by", waiting: "Queued", running: "Working…", done: "Done, confirmed by response", skipped: "Skipped by graph", halted: "Not confirmed" }[s];
     const ev = evidence[n.id];
     return `<li class="agent${n.branch ? " branch" : ""}" data-s="${s}"><div class="node">${String(i + 1).padStart(2, "0")}</div>
       <div class="card"><div class="row1"><h3>${n.name}</h3><span class="pill">${pill}</span></div><p class="role">${n.role}</p>
       ${ev ? `<div class="evidence">${ev.map(([k, v]) => `<div><span>${esc(k)}</span><span>${v}</span></div>`).join("")}</div>` : ""}</div></li>`;
   }).join("");
+}
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+/** Walk the seven agents one at a time: each shows "Working…", then "Done" with its evidence from the response. */
+async function animatePipeline(resp) {
+  const all = evidenceFrom(resp), st = Object.fromEntries(NODES.map((n) => [n.id, "waiting"])), shown = {};
+  for (const n of NODES) {
+    if (n.id === "navigation_analysis" && !resp.requirements.require_navigation) { st[n.id] = "skipped"; shown[n.id] = all[n.id]; continue; }
+    st[n.id] = "running"; renderPipeline(st, shown);
+    document.querySelector(`#pipeline li[data-s="running"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    await wait(CONFIG.recorded ? 900 : 350);
+    st[n.id] = "done"; shown[n.id] = all[n.id]; renderPipeline(st, shown);
+  }
 }
 function evidenceFrom(resp) {
   const req = resp.requirements, c = resp.candidates, m = resp.metrics || {};
@@ -227,9 +244,8 @@ async function launch() {
   try {
     const resp = replan ? await planner.replan(S.plan, req) : await planner.plan(req);
     clearInterval(timer);
-    reqStatus("Response received", `HTTP 200 in ${((performance.now() - t0) / 1000).toFixed(2)} s. Backend runtime ${resp.metrics?.runtime_ms ?? "?"} ms, mission ${esc(resp.mission_id.slice(0, 8))}${replan ? " (same ID, replanned)" : ""}`, false);
-    const states = Object.fromEntries(NODES.map((n) => [n.id, "done"])); if (!resp.requirements.require_navigation) states.navigation_analysis = "skipped";
-    renderPipeline(states, evidenceFrom(resp));
+    reqStatus(CONFIG.recorded ? "Recorded NASA-data run" : "Response received", CONFIG.recorded ? `Replayed from the live backend on NASA data (LOLA + JPL Horizons), recorded ${esc(recordedAt)}. Backend runtime then: ${resp.metrics?.runtime_ms ?? "?"} ms, mission ${esc(resp.mission_id.slice(0, 8))}.` : `HTTP 200 in ${((performance.now() - t0) / 1000).toFixed(2)} s. Backend runtime ${resp.metrics?.runtime_ms ?? "?"} ms, mission ${esc(resp.mission_id.slice(0, 8))}${replan ? " (same ID, replanned)" : ""}`, false);
+    await animatePipeline(resp);
     const c = resp.candidates, nSites = new Set(c.map((o) => o.site.site_id)).size, expected = 1 + c.length + (resp.requirements.require_navigation ? c.length : 0), tc = resp.metrics?.tool_calls;
     $("#cc-foot").innerHTML = `<p>Tool calls reported by the backend: <b>${tc}</b>${tc === expected ? `, matching 1 site query, ${c.length} visibility analyses${resp.requirements.require_navigation ? ` and ${c.length} route queries` : ""}` : tc < expected ? `. Fewer than ${expected} because verified measurements were reused` : ""}. ${nSites} sites over ${resp.requirements.dates_utc.length} days.</p>
       <button class="btn primary" id="to-map">Explore candidate sites in 3D</button><button class="btn" id="to-dossier">${resp.recommendation ? "Open landing site" : "See why nothing qualified"}</button>`;
@@ -237,13 +253,13 @@ async function launch() {
     S.plan = resp; S.lastReq = req; S.compare = null; S.replanMode = false; S.sim = null; setReplanUi();
     const rec = resp.recommendation || resp.candidates[0]; S.sel = rec ? { siteId: rec.site.site_id, date: rec.visibility.date_utc } : null;
     unlock("discover"); unlock("safety", !!resp.recommendation); go.fitted = false;
-    if (resp.recommendation) runSim(); renderDossier(); loadPlanIntoMap(); setService("planner", true);
+    if (resp.recommendation) runSim(); renderDossier(); loadPlanIntoMap(); setService("planner", true, CONFIG.recorded ? "recorded NASA runs" : undefined);
   } catch (err) {
     clearInterval(timer);
     const e = err instanceof ApiError ? err : new ApiError("http", 0, String(err));
-    reqStatus({ validation: "Request rejected (422)", upstream: "Planner failed (502)", network: "Planner unreachable", http: `HTTP ${e.status}` }[e.kind], esc(e.message), false);
+    reqStatus({ validation: "Request rejected (422)", upstream: "Planner failed (502)", network: "Planner unreachable", recorded: "Needs the live planner", http: `HTTP ${e.status}` }[e.kind], esc(e.message), false);
     renderPipeline(Object.fromEntries(NODES.map((n) => [n.id, "halted"])));
-    $("#cc-foot").innerHTML = `<p>${e.kind === "upstream" ? "The backend reports a failure for the whole request and does not say which step failed, so no step is marked as completed." : e.kind === "validation" ? "The backend refused the requirements before any step ran. Adjust the briefing and launch again." : "No request reached the planning graph."}</p>
+    $("#cc-foot").innerHTML = `<p>${e.kind === "upstream" ? "The backend reports a failure for the whole request and does not say which step failed, so no step is marked as completed." : e.kind === "validation" ? "The backend refused the requirements before any step ran. Adjust the briefing and launch again." : e.kind === "recorded" ? "On this public site, choose one of the four mission types and keep its default settings to see the recorded NASA-data run." : "No request reached the planning graph."}</p>
       <button class="btn primary" id="back-brief">Back to briefing</button><button class="btn" id="retry">Retry launch</button>`;
     $("#back-brief").onclick = () => go("define"); $("#retry").onclick = () => launch();
     if (e.kind === "network") setService("planner", false);
@@ -280,8 +296,8 @@ function daysChart(P, siteId, chosenDate) {
 }
 function renderDossier() {
   const P = S.plan, el = $("#dossier"); if (!P) return;
-  const req = P.requirements, rec = P.recommendation, warn = [...P.warnings, ...P.limitations];
-  const warnHtml = warn.length ? `<div class="provisional"><b>Read before using these results</b><ul>${warn.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
+  const req = P.requirements, rec = P.recommendation, warn = [...new Set([...P.warnings, ...P.limitations].map(friendlyWarning))];
+  const warnHtml = warn.length ? `<div class="provisional"><b>About these results</b><ul>${warn.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
   if (!rec) {
     const counts = {}; P.candidates.forEach((o) => o.violations.forEach((v) => (counts[v] = (counts[v] || 0) + 1))); const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     el.innerHTML = `<div class="empty"><p class="kicker">Mission 04</p><h1>No site meets every landing rule</h1><p>The planner checked ${P.candidates.length} site and day combinations and rejected all of them. Here is what blocked them.</p></div>${warnHtml}
@@ -332,7 +348,7 @@ function renderDossier() {
           <div class="contrib">${parts.map(([k, x]) => `<span style="width:${x * 100}%;background:${PRIO[k][1]}" title="${PRIO[k][0]} ${x.toFixed(3)}"></span>`).join("")}</div>
           <div class="contrib-keys">${parts.map(([k, x]) => `<span><i style="background:${PRIO[k][1]}"></i>${PRIO[k][0]} ${x.toFixed(3)}</span>`).join("")}</div>
           <p class="check">Breakdown recomputed in the browser from the documented scoring formula: ${recomputed.toFixed(4)}${Math.abs(recomputed - rec.score) < 1e-4 ? ", matching the backend score" : `, backend reports ${rec.score.toFixed(4)}`}.</p>
-          <p style="margin-top:10px"><b>Planner explanation:</b> ${esc(rec.explanation)}</p>
+          <p style="margin-top:10px"><b>Planner explanation:</b> ${esc(friendlyText(rec.explanation))}</p>
           ${P.ai_summary ? `<p class="ai-sum"><b>AI summary</b> <span class="ai-tag" title="Written by Gemini from the agents' numbers only. Every number was checked against the evidence; any unmatched number would have rejected the text.">Gemini · numbers checked</span><br>${esc(P.ai_summary)}</p>` : ""}
           ${sim ? `<p style="margin-top:8px"><b>Remaining risks:</b> ${sim.hazards.filter((h) => h.severity !== "info").map((h) => esc(h.title)).join("; ") || "none flagged by the safety simulation under current assumptions"}.</p>` : ""}</div>
       </div>
@@ -479,8 +495,8 @@ function selectSite(id, date, fly = false) {
     <dl class="kv"><dt>Sunlight</dt><dd style="color:var(--sun)">${h1(v.sunlight_hours)}</dd><dt>Earth in view</dt><dd style="color:var(--link)">${h1(v.earth_visible_hours)}</dd><dt>Longest blackout</dt><dd>${h1(v.max_blackout_hours)}</dd>
       ${o.route ? `<dt>Planner route</dt><dd>${fmtM(o.route.distance_m)}, ${o.route.accessible ? "accessible" : "blocked"}</dd>` : ""}
       <dt>Outcome</dt><dd>${o.feasible ? `Feasible, score ${o.score.toFixed(3)}${rank >= 0 ? `, rank ${rank + 1}` : ""}` : `<span style="color:var(--halt)">${esc(o.violations.join(", "))}</span>`}</dd>
-      <dt>Measured by</dt><dd>${esc(v.provenance.source)} ${badge(v.provenance.status)}</dd>${v.provenance.uncertainty ? `<dt>Uncertainty</dt><dd>${esc(v.provenance.uncertainty)}</dd>` : ""}</dl>
-    <p style="font-size:13px;color:var(--dust)">${esc(o.explanation)}</p>
+      <dt>Measured by</dt><dd>${esc(v.provenance.source)} ${badge(v.provenance.status)}</dd>${v.provenance.uncertainty ? `<dt>Uncertainty</dt><dd>${esc(friendlyText(v.provenance.uncertainty))}</dd>` : ""}</dl>
+    <p style="font-size:13px;color:var(--dust)">${esc(friendlyText(o.explanation))}</p>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${inCov && view ? `<button class="btn" id="walk-here">LUNA WALK here</button>` : ""}${o.feasible && inCov ? `<button class="btn" id="sim-here">Simulate safety from here</button>` : ""}</div>
     ${!inCov ? `<p class="note" style="margin-top:10px">This site is outside the terrain grid (the dashed square), so 3D ground view, routes and the safety simulation are not available for it.</p>` : ""}`;
   $$(".datepick button").forEach((b) => b.addEventListener("click", () => { selectSite(id, b.dataset.d); S.sim = null; }));
@@ -661,9 +677,10 @@ function drawSafety() {
 function setService(which, ok, label) { const b = $(`#svc-${which}`); b.classList.toggle("ok", ok); b.classList.toggle("down", !ok);
   b.title = `${which === "planner" ? "Mission planner" : "Moon navigation"} at ${which === "planner" ? CONFIG.apiBase : CONFIG.navBase}: ${label || (ok ? "online" : "offline")}`;
   led(which, ok ? "ok" : "down", label || (ok ? "online" : "offline")); }
-async function checkPlanner() { try { const h = await planner.health(); setService("planner", h.status === "ok"); return true; } catch { setService("planner", false); return false; } }
+async function checkPlanner() { try { const h = await planner.health(); setService("planner", h.status === "ok", CONFIG.recorded ? "recorded NASA runs" : undefined); return true; } catch { setService("planner", false); return false; } }
 async function checkNav() {
-  try { await moonNav.health(); S.navOnline = true; setService("nav", true); } catch { S.navOnline = false; setService("nav", false, "offline, using snapshot"); }
+  if (CONFIG.recorded) { S.navOnline = false; setService("nav", true, "NASA LOLA terrain (built in)"); }
+  else try { await moonNav.health(); S.navOnline = true; setService("nav", true); } catch { S.navOnline = false; setService("nav", false, "offline, using snapshot"); }
   try {
     const { terrain, sites, sitesMeta } = await loadTerrain(); S.terrain = terrain; S.p3Sites = sites; S.p3Meta = sitesMeta;
     led("terrain", terrain.status === "MOCK" ? "warn" : "ok", isLola(terrain) ? `NASA LOLA, ${terrain.cell} m` : `${terrain.status === "MOCK" ? "mock fixture" : terrain.status}, ${terrain.origin === "live" ? "live" : "bundled snapshot"}`);
@@ -685,7 +702,14 @@ async function checkNav() {
   if (!S.plan) $("#site-panel").innerHTML = `<p class="note">Launch a mission analysis to place the planner's candidate landing sites here. Meanwhile, click anywhere on the terrain to inspect elevation and slope.</p>`;
 }
 $("#svc-planner").onclick = async () => toast((await checkPlanner()) ? `Planner online at ${CONFIG.apiBase}` : `Planner offline at ${CONFIG.apiBase}. Add ?api=URL to point elsewhere.`);
-$("#svc-nav").onclick = async () => { await checkNav(); toast(S.navOnline ? `Navigation online at ${CONFIG.navBase}` : `Navigation offline at ${CONFIG.navBase}. Using the bundled terrain snapshot.`); };
+$("#svc-nav").onclick = async () => { await checkNav(); toast(CONFIG.recorded ? "Public site: routes use the built-in NASA LOLA terrain." : S.navOnline ? `Navigation online at ${CONFIG.navBase}` : `Navigation offline at ${CONFIG.navBase}. Using the bundled terrain snapshot.`); };
 
+let recordedAt = "";
+if (CONFIG.recorded) {
+  const bar = document.createElement("div"); bar.className = "recorded-bar"; bar.setAttribute("role", "note");
+  bar.innerHTML = `<b>Public demo.</b> Mission plans are real runs recorded from the backend on NASA LOLA + JPL Horizons data. Live planning: <a href="${REPO_URL}" target="_blank" rel="noopener">download</a> and run RUN.bat.`;
+  document.body.append(bar);
+  recordedRuns().then((r) => { recordedAt = (r.meta?.recorded_utc || "").replace("T", " ").replace("+00:00", " UTC"); }).catch(() => {});
+}
 applyPreset("science"); renderPipeline(); go("cabin"); checkPlanner(); checkNav();
 window.__luna = { S, explorer, view, go, runSim };

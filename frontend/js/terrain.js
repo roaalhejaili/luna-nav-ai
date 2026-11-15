@@ -6,7 +6,7 @@
 // (same 8-connected A*, same slope blocking, same strategy weights, same distance maths), extended with
 // an optional obstacle mask used only by the hazard scenarios.
 import { project, unproject, haversineM, MOON_R } from "./geo.js";
-import { moonNav } from "./api.js";
+import { moonNav } from "./api.js?v=7";
 
 export const STRATEGY_WEIGHT = { shortest: 0, balanced: 4, gentle: 24 };
 

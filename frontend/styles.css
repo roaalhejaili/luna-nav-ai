@@ -423,3 +423,15 @@ input[type="time"], .sel { background: var(--deck-2); border: 1px solid var(--li
 .adv-group.mobility h3, .adv-group.mobility .hint { grid-column: 1 / -1; }
 @media (max-width: 640px) { .basics-grid, .adv-group.mobility { grid-template-columns: 1fr; } }
 .alts .sid { display: block; color: var(--dust); font-size: 11.5px; }
+
+/* Public-site notice (recorded mode) */
+.recorded-bar { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 50; max-width: min(92vw, 860px);
+  padding: 8px 14px; border-radius: 10px; background: rgba(10, 18, 34, .92); border: 1px solid rgba(120, 190, 255, .35);
+  color: #dbe7f5; font-size: 13px; line-height: 1.4; text-align: center; backdrop-filter: blur(6px); }
+.recorded-bar a { color: #7cc8ff; }
+
+/* Agent currently working (step-by-step animation) */
+.agent[data-s="running"] .node { box-shadow: 0 0 0 3px rgba(124, 200, 255, .35), 0 0 18px rgba(124, 200, 255, .55); animation: agentPulse 0.9s ease-in-out infinite; }
+.agent[data-s="running"] .card { border-color: rgba(124, 200, 255, .7); }
+.agent[data-s="running"] .pill { color: #7cc8ff; border-color: rgba(124, 200, 255, .7); }
+@keyframes agentPulse { 50% { transform: scale(1.08); } }
